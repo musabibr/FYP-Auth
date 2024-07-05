@@ -1,6 +1,5 @@
 require('dotenv').config()
 const app = require('./app')
-
 const { PORT } = process.env
 
 const startServer = () => {
@@ -13,4 +12,4 @@ const startServer = () => {
     }
 }
 
-startServer()
+startServer() 
