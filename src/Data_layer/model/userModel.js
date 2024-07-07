@@ -42,7 +42,7 @@ const userSchema = new Schema({
         expiresAt: Date,
         attempts: {
             type: Number,
-            default: 0 ,
+            default: 0 , 
         }
     },
     photo: {
