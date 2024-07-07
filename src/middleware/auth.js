@@ -195,11 +195,11 @@ module.exports.protect = async (req, res, next) => {
         };
         req.user = newUser;
         res.locals.user = newUser;
-        next();
+        next()
     } catch (error) {
         console.log(error);
         res.status(401).json({message:"Internal server error"});
     }
     
-
+// next()
 }

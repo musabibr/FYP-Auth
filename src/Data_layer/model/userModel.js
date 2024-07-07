@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const crypto = require("crypto");
+const { string } = require('joi');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -44,6 +45,14 @@ const userSchema = new Schema({
             default: 0 ,
         }
     },
+    photo: {
+        type: String,
+        default: 'https://res.cloudinary.com/dyhmzdsc9/image/upload/v1720371741/aheeihmowdsxqvtionkd.png'
+    },
+    imgPId: {
+        type: String,
+        default: null
+    },
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
@@ -68,7 +77,6 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 
         return JWTTimestamp < changedTimestamp;
     }
-
     // False means NOT changed
     return false;
 };
@@ -81,14 +89,10 @@ userSchema.methods.createPasswordResetToken = function () {
         .update(resetToken)
         .digest("hex");
 
-    // console.log({ resetToken }, this.passwordResetToken);
-
     this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
     return resetToken;
 };
-
-
 
 
 const User = mongoose.model('User', userSchema);

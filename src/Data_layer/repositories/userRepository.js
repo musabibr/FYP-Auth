@@ -24,10 +24,16 @@ class UserRepository {
         return await User.create({ name, email, password });
     }
 
-    async updateUser(id, name, photo) {
+    async updateUser(id, name) {
         const user = await this.getUserById(id);
-        user.name = name;
-        user.photo = photo;
+        user.name = name || user.name;
+        await user.save();
+        return user
+    }
+    async uploadUserPhoto(id, photo,imgPId) {
+        const user = await this.getUserById(id);
+        user.photo = photo || 'default.jpeg';
+        user.imgPId = imgPId || null;
         await user.save();
         return user
     }
