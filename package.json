@@ -4,7 +4,8 @@
   "description": "This is a microservice part of final year project  \"psychotherapist API\" , this API responsible general user authentication",
   "main": "server.js",
   "scripts": {
-    "start": "NODE_ENV=production nodemon src/server.js"
+    "start": "NODE_ENV=production nodemon src/server.js",
+    "dev": "NODE_ENV=dev nodemon src/server.js"
   },
   "author": "musab ibrahim",
   "license": "Apache-2.0",

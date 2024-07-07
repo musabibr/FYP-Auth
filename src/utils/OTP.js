@@ -16,4 +16,4 @@ function generateOTP() {
 }
 
 
-module.exports = {generateOTP }
+module.exports = {generateOTP}

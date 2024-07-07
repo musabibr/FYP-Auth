@@ -1,6 +1,7 @@
 const userRepository = require("../Data_layer/repositories/userRepository");
 const Email = require("../utils/email");
-const { generateOTP} = require("../utils/OTP"); 
+const { generateOTP } = require("../utils/OTP"); 
+const {generateJWT ,verifyJWT} = require('../middleware/middleware');
 
 const hashData = require("../utils/hashData");
 
@@ -158,3 +159,47 @@ module.exports.verifyOTP = async (req, res) => {
     }
 };
 
+module.exports.protect = async (req, res, next) => {
+
+    let token;
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+    else if(req.cookies?.jwt){
+        token = req.cookies.jwt;
+    }
+
+    if(!token){
+        return  next(res.status(401).json({status:'fail', message:"Unauthorized, Please log in to get access."}));
+    }
+    try {
+        const decoded = await verifyJWT(token, process.env.JWT_SECRET);
+        // Check if the JWT has expired   
+        if(!decoded){
+            return  next(res.status(401).json({status:'fail', message:"Unauthorized, Please log in to get access."}));
+        }
+        const user = await new userRepository().getUserById(decoded.user);
+        // Check if user exists
+        if(!user){
+            return  next(res.status(401).json({status:'fail', message:"Unauthorized, Please log in to get access."}));
+        }
+
+        if (user.changedPasswordAfter(decoded.iat)) { 
+            return next(res.status(401).json({status:'fail',message:'User recently changed password! Please log in again.'}))
+        }
+        const newUser = {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            photo: user?.photo,
+        };
+        req.user = newUser;
+        res.locals.user = newUser;
+        next();
+    } catch (error) {
+        console.log(error);
+        res.status(401).json({message:"Internal server error"});
+    }
+    
+
+}

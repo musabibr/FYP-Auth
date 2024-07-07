@@ -11,6 +11,13 @@ class UserRepository {
         const user = await User.findById(id);
         return user;
     }
+    async getUserByResetToken(hashedToken) {
+        const user = await User.findOne({
+            passwordResetToken: hashedToken,
+            passwordResetExpires: { $gt: Date.now() },
+        });
+        return user;
+    }
 
     async createUser(name, email, password) {
         this.validateUser(name, email, password);

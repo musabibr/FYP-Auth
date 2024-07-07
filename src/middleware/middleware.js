@@ -26,7 +26,13 @@ function generateJWT(payload, secret, options = {}) {
  */
 function verifyJWT(token, secret) {
     try {
-        return jwt.verify(token, secret);
+        const decoded = jwt.verify(token, secret);
+
+        // Check if the JWT has expired
+        if (decoded.exp < Date.now() / 1000) {
+        return null;
+        }
+        return decoded;
     } catch (error) {
         // Handle specific JWT verification errors 
         if (error.name === "JsonWebTokenError") {
