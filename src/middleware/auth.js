@@ -69,11 +69,12 @@ module.exports.requestOTP = async (req, res) => {
         user._id
         }/verify`;
 
-        const email = await new Email(user, url).sendOtp(otpCode);
-        if (!email) {
-            // If email sending fails, return error response
-            return res.status(500).json({ message: "Failed to send email" });
-        }
+        // const email =  
+            await new Email(user, url).sendOtp(otpCode);
+        // if (!email) {
+        //     // If email sending fails, return error response
+        //     return res.status(500).json({ message: "Failed to send email" });
+        // }
 
         // Return success response with OTP verification status and message
         return res.status(200).json({

@@ -16,14 +16,15 @@ const {
 const { requestOTP, verifyOTP , protect } = require('../middleware/auth');
 
 
+router.post('/forgot-password', forgotPassword);
+router.patch('/reset-password/:resetToken', resetPassword);
+
 router.post('/signup', signup);
 router.get('/request-otp/:id', requestOTP);
 router.post('/verify-otp/:id', verifyOTP);
 router.post('/login', login);
 router.get('/logout', logout);
 
-router.post('/forgot-password', forgotPassword);
-router.patch('/reset-password/:id', resetPassword);
 
 router.use(protect);
 

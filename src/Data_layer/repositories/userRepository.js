@@ -1,10 +1,13 @@
 const User = require("../model/userModel");
+const crypto = require("crypto");
 const validator = require("validator");
 
 class UserRepository {
     async getUser(email) {
         this.validateEmail(email);
-        return await User.findOne({ email });
+        let users = await User.find();
+        return  users.find((user) => user.email === email);
+        // return await User.findOne({email: email });
     }
 
     async getUserById(id) {
@@ -76,6 +79,18 @@ class UserRepository {
         await user.save();
         return user;
     }
+    createPasswordResetToken(user) {
+        const resetToken = crypto.randomBytes(32).toString("hex");
+
+            user.passwordResetToken = crypto
+            .createHash("sha256")
+            .update(resetToken)
+            .digest("hex");
+
+        user.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+        user.resetToken = resetToken;
+        return user;
+    }
 
     async deleteUser(id) {
         return User.deleteOne({ _id: id });
@@ -85,8 +100,10 @@ class UserRepository {
         const user = await this.getUserById(id);
         user.isActive = false;
         await user.save();
-        return user;
+        return user; 
     }
 }
 
 module.exports = UserRepository;
+
+// 

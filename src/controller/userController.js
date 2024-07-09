@@ -119,7 +119,8 @@ exports.login = async (req, res,next) => {
         if (!user) {
             return next(res.status(404).json({status:'failed',message:'User not found, please signup!'}))
         }
-
+        console.log('saved password:', user);
+        console.log('entered password:', password);
         // If user's password does not match the provided password, return a 401 error
         if (!(await hashData.compareData(password, user.password))) {
             return next(res.status(401).json({status:'failed',message:'Invalid email or password!'}))
@@ -191,7 +192,7 @@ exports.restrictedTo = (...roles) => {
 // If everything succeeds, it returns a 200 response with a success message.
 exports.forgotPassword = async (req, res) => {
     // Extract the email from the request body
-    const { email } = req.body;
+    const  {email}  = req.body;
 
     // Validate that the email is provided and it is a valid email format
     if (!email || !validator.isEmail(email)) {
@@ -199,36 +200,36 @@ exports.forgotPassword = async (req, res) => {
     }
 
     // Retrieve the user associated with the provided email
-    const user = await new userRepository().getUser(email);
-
+    let user = (await (new userRepository().getUser(email)))
     // If the user does not exist, return a 404 error
     if (!user) {
         return res.status(404).json({ message: 'User not found' });
     }
 
     // If the user is not verified, return a 401 error
-    if (!user.isVerified) {
+    if (user.isVerified === false) {
         return res.status(401).json({ message: 'Please verify your email first' });
     }
 
     // If the user's account is deactivated, return a 401 error
-    if (!user.isActive) {
+    if (user.isActive === false) {
         return res.status(401).json({ message: 'Account deactivated, contact technical support for further details.' });
     }
 
     // Generate a password reset token for the user
-    const resetToken = user.createPasswordResetToken();
-
-    // Save the user with the new password reset token and expiration date
+    user = new userRepository().createPasswordResetToken(user);
     await user.save({ validateBeforeSave: false });
 
     try {
         // Create the reset URL and send a password reset email to the user
-        const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
+        const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/reset-password/${user.resetToken}`;
         await new Email(user, resetURL).sendPasswordReset();
 
         // Return a 200 response with a success message
-        res.status(200).json({ status: 'success', message: 'Password reset email sent' });
+        res.status(200).json({
+            status: 'success',
+            message: 'Password reset email sent',
+        });
     } catch (error) {
         // If the email sending process fails, clear the password reset token and expiration date from the user and return a 500 error
         user.passwordResetToken = undefined;
@@ -250,7 +251,10 @@ exports.forgotPassword = async (req, res) => {
 exports.resetPassword = async (req, res) => {
     // Extract the reset token from the request params
     const resetToken = req.params.resetToken;
-    
+    const newPassword = req.body?.password;
+    if(!newPassword || newPassword.length<8){
+        return res.status(400).json({ message: 'Please provide a valid password' });
+    }
     // Validate that the reset token is provided and it is a valid reset token
     if (!resetToken) {
         // If reset token is not provided, return a 400 error with a message
@@ -270,12 +274,16 @@ exports.resetPassword = async (req, res) => {
     }
     
     try {
+        // Set the new password and clear the reset token and expiration date 
+        user.password = await hashData.encryptData(newPassword);
+        user.passwordResetToken = undefined;
+        user.passwordResetExpires = undefined;
+        // Save the changes to the user's document
+        await user.save();
         // Clear the password reset token and expiration date from the user's document
         user.password = user.passwordResetToken = user.passwordResetExpires = undefined;
-        
-        // Save the changes to the user's document
-        await user.save({ validateBeforeSave: false });
-        createSendToken(res,req, user, 'Password reset successfully');
+        // Send a success response
+        res.status(200).json({status:'success',message:'Password reset successfully'});
     } catch (error) {
         // If an error occurs, return a 500 error with a message
         res.status(500).json({ message: 'Something went wrong' });
@@ -298,7 +306,7 @@ exports.updatePassword = async (req, res) => {
         return res.status(401).json({ status: 'failed', message: 'Invalid password!' });
     }
     try {
-        user.password = newPassword;
+        user.password = await hashData(newPassword);
         await user.save({ validateBeforeSave: false });
         createSendToken(res,req, user, 'Password updated successfully!');
         
@@ -334,7 +342,7 @@ const createSendToken = async (res, req, user ,message) => {
         data: {
             user: newUser
         },
-        token: token
+        // token: token
     });
 }
 
@@ -450,7 +458,7 @@ exports.updateMe = async (req,res)=>{
 exports.updatePhoto = async (req, res) => {
     // Retrieve the user's ID from the request
     const id = req?.user?.id;
-    let imgPId = req.user?.photo?.imgPId || null;
+    
     // Check if a file was uploaded in the request
     if (!req.file) {
         // If not, return a 400 error response
@@ -460,15 +468,17 @@ exports.updatePhoto = async (req, res) => {
     try {
         // Generate a filename for the user's photo
         req.file.filename = `user-${req.user.id}-${Date.now()}`;
-
+        let imgPId = req.file.filename || null
+        let user = await new userRepository().getUserById(id);
+        
         // Upload the photo to the cloudinary server
         const results = await cloudinary.uploader.upload(
             req.file.path,
             {
                 public_id: req.file.filename,
-            }
-        ); 
-
+                }
+            ); 
+                
         // Check if the upload failed
         if(!results){
             // If so, return a 500 error response
@@ -485,16 +495,14 @@ exports.updatePhoto = async (req, res) => {
             height:500,
         });
 
-        // Delete the old photo from cloudinary
-        if(imgPId){
-            const img = await deleteOldImg(imgPId);
-            console.log(img);
-            imgPId = results.public_id; 
-            console.log(imgPId);
+        // Delete the old photo from cloudinary  
+        if (user?.imgPId) {
+            await deleteOldImg(user?.imgPId);
         }
 
+
         // Update the user's photo in the database
-        const user = await new userRepository().uploadUserPhoto(id,photo,imgPId);
+        user = await new userRepository().uploadUserPhoto(id,photo,imgPId);
 
         // Construct a new user object with the updated information
         const newUser = {
