@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "NODE_ENV=production node src/server.js",
-    "dev": "NODE_ENV=dev node src/server.js"
+    "dev": "NODE_ENV=dev nodemon src/server.js"
   },
   "author": "musab ibrahim",
   "license": "Apache-2.0",
