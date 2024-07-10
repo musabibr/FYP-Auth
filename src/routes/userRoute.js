@@ -37,4 +37,4 @@ router.patch('/upload-photo',
 router.delete('/delete-my-account',deleteMe)
 
 
-module.exports = router; // Export the router for use in other modules    
+module.exports = router; // Export the router for use in other modules   

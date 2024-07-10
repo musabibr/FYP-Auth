@@ -7,7 +7,6 @@ class UserRepository {
         this.validateEmail(email);
         let users = await User.find();
         return  users.find((user) => user.email === email);
-        // return await User.findOne({email: email });
     }
 
     async getUserById(id) {
@@ -106,4 +105,4 @@ class UserRepository {
 
 module.exports = UserRepository;
 
-// 
+//  

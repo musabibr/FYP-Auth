@@ -119,8 +119,7 @@ exports.login = async (req, res,next) => {
         if (!user) {
             return next(res.status(404).json({status:'failed',message:'User not found, please signup!'}))
         }
-        console.log('saved password:', user);
-        console.log('entered password:', password);
+        
         // If user's password does not match the provided password, return a 401 error
         if (!(await hashData.compareData(password, user.password))) {
             return next(res.status(401).json({status:'failed',message:'Invalid email or password!'}))
@@ -541,10 +540,18 @@ exports.updatePhoto = async (req, res) => {
  */
 exports.deleteMe = async (req, res) => {
     try {
+
         // Retrieve the user from the request
         const user = req.user;
+        if(!user){
+            return res.status(401).json({status:'fail',message:'Unauthorized, Please log in to get access.'});
+        }
+        if((await new userRepository().getUserById(user.id))?.isActive === false){
+            return res.status(401).json({status:'fail',message:'Unauthorized, Please log in to get access.'});
+            
+        }
         // Call the userRepository's DeactivateAccount method to deactivate the user's account
-        await new userRepository().DeactivateAccount(user._id);
+        await new userRepository().DeactivateAccount(user.id);
         // Clear the req.user and res.locals.user variables
         req.user = undefined;
         res.locals.user = undefined;
