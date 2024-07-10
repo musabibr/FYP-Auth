@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const validator = require("validator");
 // const multer = require('multer');
-const sharp = require("sharp");
+// const sharp = require("sharp");
 const userRepository = require("../Data_layer/repositories/userRepository");
 const Email = require('../utils/email')
 const { generateJWT  } = require('../middleware/middleware');
