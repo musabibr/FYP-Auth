@@ -1,7 +1,5 @@
 const crypto = require('crypto');
 const validator = require("validator");
-// const multer = require('multer');
-// const sharp = require("sharp");
 const userRepository = require("../Data_layer/repositories/userRepository");
 const Email = require('../utils/email')
 const { generateJWT  } = require('../middleware/middleware');
@@ -9,12 +7,8 @@ const hashData = require('../utils/hashData');
 const upload = require('../middleware/multer')
 const {cloudinary ,deleteOldImg} = require('../utils/cloudinary');
 
-
-
-
+// 
 exports.uploadUserPhoto = upload.single('image');
-
-
 
 function validateUser(res,name, email, password) {
     if(!name || !email || !password){
