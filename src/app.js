@@ -33,7 +33,7 @@ const corsOptions = {
 // creating the server
 const app = express();
 app.use(cors(corsOptions));
-app.use(limiter)
+// app.use(limiter)
 app.use(express.json());
 app.use(hpp())
 app.use(morgan('dev'));
