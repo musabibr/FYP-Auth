@@ -36,7 +36,7 @@ const app = express();
 app.use(cors());
 // app.use(limiter)
 app.use(express.json());
-app.use(hpp())
+// app.use(hpp())
 app.use(morgan('dev'));
 app.use(mongoSanitize());
 
