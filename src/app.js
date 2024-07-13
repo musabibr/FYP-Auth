@@ -18,7 +18,7 @@ const limiter = rateLimit({
 const allowedOrigins = [
   "https://psychological-assistant-app.vercel.app/",
   "http://localhost:8085/api/v1/users/",
-  // "*",
+  "*",
   
 ];
 
