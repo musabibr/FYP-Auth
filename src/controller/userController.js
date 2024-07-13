@@ -325,7 +325,7 @@ const createSendToken = async (res, req, user ,message) => {
     res.cookie('jwt', token, {
         httpOnly: true,
         maxAge: 30 * 24 * 60 * 60 * 1000,
-        // secure: req.secure || req.headers['x-forwarded-proto'] === 'https'
+        secure:true// secure: req.secure || req.headers['x-forwarded-proto'] === 'https'
     });
     req.user = newUser;
     res.locals.user = newUser;
