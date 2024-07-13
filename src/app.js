@@ -27,14 +27,15 @@ const corsOptions = {
     if (allowedOrigins.includes(origin) || !origin) {
       callback(null, true);
     } else {
-      callback(new Error('Origin not allowed by CORS'));
+      callback(new Error("Origin not allowed by CORS"));
     }
   },
-  credentials: true, // Allow cookies for authenticated requests (optional)  
+  credentials: true, // Allow cookies for authenticated requests (optional)
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 // creating the server
 const app = express();
-app.use(cors({allowedOrigins,allowedHeaders: ['Content-Type', 'Authorization']}));
+app.use(cors(corsOptions));
 app.use(limiter)
 app.use(express.json());
 app.use(hpp())
