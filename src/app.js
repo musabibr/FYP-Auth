@@ -34,7 +34,7 @@ const corsOptions = {
 };
 // creating the server
 const app = express();
-app.use(cors({allowedOrigins, credentials: true ,allowedHeaders: ['Content-Type', 'Authorization']}));
+app.use(cors({allowedOrigins,allowedHeaders: ['Content-Type', 'Authorization']}));
 app.use(limiter)
 app.use(express.json());
 app.use(hpp())
