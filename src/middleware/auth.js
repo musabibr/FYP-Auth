@@ -49,9 +49,9 @@ module.exports.requestOTP = async (req, res) => {
             });
         }
 
-        // Check if user has exceeded 5 attempts
-        if (user.otp.attempts > 5) {
-            // If user has exceeded 5 attempts, deactivate user's account
+        // Check if user has exceeded 6 attempts
+        if (user.otp.attempts > 6) {
+            // If user has exceeded 6 attempts, deactivate user's account
             await new userRepository().DeactivateAccount(user._id);
             // Return error response
             return res.status(400).json({ message: "Too many attempts." });
@@ -82,8 +82,8 @@ module.exports.requestOTP = async (req, res) => {
             message: "OTP sent successfully",
             otp:otpCode,
             attempts: {
-                sent: user.otp.attempts,
-                remaining: 5 - user.otp.attempts,
+                sent: user.otp.attempts - 1,
+                remaining: 6 - user.otp.attempts,
             }
         });
     } catch (error) {
