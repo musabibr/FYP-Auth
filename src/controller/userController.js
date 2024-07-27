@@ -45,14 +45,14 @@ exports.signup = async (req, res, next)=>{
 
         password = await hashData.encryptData(password);
         user = await new userRepository().createUser(name, email, password);
-        user.otp.code = code;
-        await user.save();
-
+        
         if (!user) {
+            
             return res.status(500).json({status:'fail',message:'Something went very wrong!'})
         }
-
-
+        user.otp.code = code;
+        user.otp.attempts++;
+        await user.save();
         // create and send token
         res.status(201).json({
             status: 'success',
@@ -149,7 +149,26 @@ exports.login = async (req, res,next) => {
 
         // If user's account is not verified, return a 401 error
         if (!user.isVerified) {
-            return next(res.status(401).json({status:'failed',message:'Please verify your email to proceed.'}))
+            user.otp.code = undefined;
+            user.otp.sent = 6 - user.otp.attempts
+            return next(res.status(401).json({
+                status: 'failed',
+                message: 'Please verify your email to proceed.',
+                data: {
+                    id: user._id,
+                    name: user.name,
+                    email: user.email,
+                    photo: user.photo,
+                    otp: {
+                        attempts: {
+                            sent: user.otp.attempts - 1,
+                            remaining:6 - user.otp.attempts
+                        }
+                    },
+                    
+                }
+                
+            }))
         }
 
         // If user's account is deactivated, return a 401 error
@@ -159,7 +178,7 @@ exports.login = async (req, res,next) => {
 
         // Generate and send JWT token to user
         user.otp.code =undefined
-        createSendToken(res,req, user,user.otp,user.isVerified, "Login successful");
+        createSendToken(res,req, user, "Login successful");
         // next()
     } catch (error) {
         // If an error occurs, return a 500 error
