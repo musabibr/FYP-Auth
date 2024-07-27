@@ -61,7 +61,8 @@ exports.signup = async (req, res, next)=>{
                 id:user?.id || user._id,
                 name: user.name,
                 email: user.email,
-                photo:user.photo
+                photo: user.photo,
+                
             },
             OTP:{
             otp_code:otpCode, // for test only
@@ -157,7 +158,8 @@ exports.login = async (req, res,next) => {
         }
 
         // Generate and send JWT token to user
-        createSendToken(res,req, user, "Login successful");
+        user.otp.code =undefined
+        createSendToken(res,req, user,user.otp,user.isVerified, "Login successful");
         // next()
     } catch (error) {
         // If an error occurs, return a 500 error
@@ -336,7 +338,7 @@ exports.updatePassword = async (req, res) => {
     }
 }
 
-const createSendToken = async (res, req, user ,message) => {
+const createSendToken = async (res, req, user ,otp, isVerified,message) => {
     // Create a new user object to be returned in the response
     const newUser = {
         id: user._id,
@@ -356,12 +358,14 @@ const createSendToken = async (res, req, user ,message) => {
     });
     req.user = newUser;
     res.locals.user = newUser;
+    if (isVerified) newUser.isVerified = isVerified;
     return res.status(200).json({
         status: 'success',
         message: message,
         data: {
             user: newUser
         },
+        otp: otp || null,
         // token: token
     });
 }

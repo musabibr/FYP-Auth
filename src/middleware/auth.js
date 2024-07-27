@@ -4,6 +4,7 @@ const { generateOTP } = require("../utils/OTP");
 const {generateJWT ,verifyJWT} = require('../middleware/middleware');
 
 const hashData = require("../utils/hashData");
+const UserRepository = require("../Data_layer/repositories/userRepository");
 
 /**
  * This function is a middleware for authentication. It is responsible for 
@@ -14,11 +15,13 @@ const hashData = require("../utils/hashData");
  * @return {Object} JSON response with account verification status and message
  */
 module.exports.requestOTP = async (req, res) => {
+    let id, email;
+    
     // Check if id is provided in the request parameters
-    if (!req.params.id) {
-        return res.status(403).json({message: "Forbidden!!"});
-    }
-    const id = req.params.id; // Extract user ID from request parameters
+    // if (!req.params.id) {
+    //     return res.status(403).json({message: "Forbidden!!"});
+    // }
+    // const id = req.params.id; // Extract user ID from request parameters
 
     // Generate OTP
     const otpCode = generateOTP();
@@ -26,8 +29,16 @@ module.exports.requestOTP = async (req, res) => {
     const code = await hashData.encryptData(otpCode);
 
     try {
+        let user;
+        if (req.params.id) {
+        id = req.params.id;
         // Retrieve user from database using user ID
-        let user = await new userRepository().getUserById(id);
+        user = await new userRepository().getUserById(id);
+        }
+        else if(req.body.email) {
+            email = req.body;
+            user = new UserRepository().getUser(email)
+        }
 
         // Check if user exists
         if (!user) {
@@ -80,6 +91,7 @@ module.exports.requestOTP = async (req, res) => {
         return res.status(200).json({
             status: 'success',
             message: "OTP sent successfully",
+            id:user._id,
             otp:otpCode,
             attempts: {
                 sent: user.otp.attempts - 1,
