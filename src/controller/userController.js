@@ -67,7 +67,7 @@ exports.signup = async (req, res, next)=>{
             otp_code:otpCode, // for test only
             attempts: {
                 sent: user.otp.attempts,
-                remaining: 5 - user.otp.attempts,
+                remaining: 6 - user.otp.attempts,
             }}
         })
     } catch (error) {
