@@ -20,7 +20,7 @@ router.post('/forgot-password', forgotPassword);
 router.patch('/reset-password/:resetToken', resetPassword);
 
 router.post('/signup', signup);
-router.get('/request-otp/:id', requestOTP);
+router.post('/request-otp/:id', requestOTP);
 router.post('/verify-otp/:id', verifyOTP);
 router.post('/login', login);
 router.get('/logout', logout);
