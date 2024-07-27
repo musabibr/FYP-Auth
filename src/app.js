@@ -17,7 +17,7 @@ const limiter = rateLimit({
 // cors allowed origins
 const allowedOrigins = [
   "https://psychological-assistant-app.vercel.app/",
-  "http://localhost:8085/api/v1/users/",
+  "http://localhost:3000/",
   "*",
   
 ];
@@ -32,10 +32,11 @@ const corsOptions = {
   },
   credentials: true, // Allow cookies for authenticated requests (optional)
   allowedHeaders: ["Content-Type", "Authorization"],
+  
 };
 // creating the server
 const app = express();
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(limiter)
 app.use(express.json());
 app.use(hpp())

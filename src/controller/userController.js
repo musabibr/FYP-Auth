@@ -4,6 +4,7 @@ const userRepository = require("../Data_layer/repositories/userRepository");
 const Email = require('../utils/email')
 const { generateJWT  } = require('../middleware/middleware');
 const hashData = require('../utils/hashData');
+const {generateOTP} = require('../utils/OTP')
 const upload = require('../middleware/multer')
 const {cloudinary ,deleteOldImg} = require('../utils/cloudinary');
 
@@ -28,8 +29,12 @@ function validateUser(res,name, email, password) {
 
 exports.signup = async (req, res, next)=>{
     let { name, email, password } = req.body;
-
+    
     try {
+        const otpCode = generateOTP();
+        // Encrypt OTP
+        const code = await hashData.encryptData(otpCode);
+
         validateUser(res, name, email, password);
 
         let user = await new userRepository().getUser(email);
@@ -40,9 +45,31 @@ exports.signup = async (req, res, next)=>{
 
         password = await hashData.encryptData(password);
         user = await new userRepository().createUser(name, email, password);
+        user.otp.code = code;
+        await user.save();
+
+        if (!user) {
+            return res.status(500).json({status:'fail',message:'Something went very wrong!'})
+        }
+
 
         // create and send token
-        createSendToken(res,req, user, 'Account created successfully!');
+        res.status(201).json({
+            status: 'success',
+            message:'Account created successfully!',
+            user:{
+                id:user?.id || user._id,
+                name: user.name,
+                email: user.email,
+                photo:user.photo
+            },
+            OTP:{
+            otp_code:otpCode, // for test only
+            attempts: {
+                sent: user.otp.attempts,
+                remaining: 5 - user.otp.attempts,
+            }}
+        })
     } catch (error) {
         console.log(error);
         res.status(400).json({ message: error.message });

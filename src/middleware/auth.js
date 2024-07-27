@@ -70,7 +70,7 @@ module.exports.requestOTP = async (req, res) => {
         }/verify`;
 
         // const email =  
-            await new Email(user, url).sendOtp(otpCode);
+            // await new Email(user, url).sendOtp(otpCode);
         // if (!email) {
         //     // If email sending fails, return error response
         //     return res.status(500).json({ message: "Failed to send email" });
@@ -80,6 +80,7 @@ module.exports.requestOTP = async (req, res) => {
         return res.status(200).json({
             status: 'success',
             message: "OTP sent successfully",
+            otp:otpCode,
             attempts: {
                 sent: user.otp.attempts,
                 remaining: 5 - user.otp.attempts,
