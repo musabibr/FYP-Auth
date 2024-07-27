@@ -36,8 +36,9 @@ module.exports.requestOTP = async (req, res) => {
         user = await new userRepository().getUserById(id);
         }
         else if(req.body.email) {
-            email = req.body;
-            user = new UserRepository().getUser(email)
+            email = req.body.email;
+            user = await new UserRepository().getUser(email)
+            console.log(user);
         }
 
         // Check if user exists
@@ -53,13 +54,12 @@ module.exports.requestOTP = async (req, res) => {
         }
 
         // Check if the user is active
-        if (!user.isActive) {
+        if (user.isActive === false) {
             // If user's account is not active, return error response
             return res.status(400).json({
                 message: "Your account has been blocked,contact technical support for further details!!"
             });
         }
-
         // Check if user has exceeded 6 attempts
         if (user.otp.attempts > 6) {
             // If user has exceeded 6 attempts, deactivate user's account
@@ -91,7 +91,8 @@ module.exports.requestOTP = async (req, res) => {
         return res.status(200).json({
             status: 'success',
             message: "OTP sent successfully",
-            id:user._id,
+            id: user._id,
+            email:user.email,
             otp:otpCode,
             attempts: {
                 sent: user.otp.attempts - 1,
@@ -99,8 +100,8 @@ module.exports.requestOTP = async (req, res) => {
             }
         });
     } catch (error) {
-        // If any error occurs, return error response
-        res.status(500).json({ message: "Internal server error0" });
+        // If any error occurs, return error response 
+        res.status(500).json({ message: "Internal server error" });
         console.log(error);
     }
 };

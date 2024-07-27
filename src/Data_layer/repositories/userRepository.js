@@ -5,8 +5,9 @@ const validator = require("validator");
 class UserRepository {
     async getUser(email) {
         this.validateEmail(email);
-        let users = await User.find();
-        return  users.find((user) => user.email === email);
+        let user = await User.findOne({email});
+        // return  users.find((user) => user.email === email);
+        return user;
     }
 
     async getUserById(id) {
