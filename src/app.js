@@ -17,7 +17,7 @@ const limiter = rateLimit({
 // cors allowed origins
 const allowedOrigins = [
   "https://psychological-assistant-app.vercel.app/",
-  "http://localhost:3000/",
+  "http://localhost:3000",
   "*",
   
 ];
