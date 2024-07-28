@@ -36,7 +36,7 @@ const corsOptions = {
 };
 // creating the server
 const app = express();
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(limiter)
 app.use(express.json());
 app.use(hpp())
