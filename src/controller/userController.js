@@ -1,4 +1,4 @@
-٨const crypto = require('crypto');
+const crypto = require('crypto');
 const validator = require("validator");
 const userRepository = require("../Data_layer/repositories/userRepository");
 const Email = require('../utils/email')
