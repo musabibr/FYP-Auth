@@ -314,6 +314,9 @@ exports.resetPassword = async (req, res) => {
         // If user is not found, return a 400 error with a message
         return res.status(400).json({ message: 'Token is invalid or has expired' });
     }
+if(user.passwordResetExpires > Date.now()){
+return res.status(400).json({status:'fail', message: 'Your token has expired' });
+}
     
     try {
         // Set the new password and clear the reset token and expiration date 
