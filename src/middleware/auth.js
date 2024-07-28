@@ -38,7 +38,6 @@ module.exports.requestOTP = async (req, res) => {
         else if(req.body.email) {
             email = req.body.email;
             user = await new UserRepository().getUser(email)
-            console.log(user);
         }
 
         // Check if user exists

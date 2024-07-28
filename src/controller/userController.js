@@ -276,7 +276,8 @@ exports.forgotPassword = async (req, res) => {
         user.passwordResetToken = undefined;
         user.passwordResetExpires = undefined;
         await user.save({ validateBeforeSave: false });
-        res.status(500).json({ message: error.message });
+        console.log(error);
+        res.status(500).json({ message: 'something went very wrong' });
     }
 }
 
