@@ -177,8 +177,8 @@ exports.login = async (req, res,next) => {
         }
 
         // Generate and send JWT token to user
-        user.otp.code =undefined
-        createSendToken(res,req, user, "Login successful");
+        // user.otp.code =undefined
+        createSendToken(res,req, user,undefined,undefined, "Login successful");
         // next()
     } catch (error) {
         // If an error occurs, return a 500 error
