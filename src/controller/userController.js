@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+٨const crypto = require('crypto');
 const validator = require("validator");
 const userRepository = require("../Data_layer/repositories/userRepository");
 const Email = require('../utils/email')
@@ -378,7 +378,7 @@ const createSendToken = async (res, req, user ,otp, isVerified,message) => {
     res.cookie('jwt', token, {
         httpOnly: true,
         maxAge: 30 * 24 * 60 * 60 * 1000,
-        secure:false// secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+        secure:false,// secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
 sameSite:'none',
     });
     req.user = newUser;
