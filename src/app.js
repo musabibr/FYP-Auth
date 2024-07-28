@@ -50,6 +50,7 @@ app.all('*',(req, res, next) => {
     .status(404)
     .json({
       status: "fail",
+      method:`${req.method}`,
       message: `Can't find ${req.originalUrl} on this server!`,
     });
 })
