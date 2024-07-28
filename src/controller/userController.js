@@ -270,7 +270,7 @@ exports.forgotPassword = async (req, res) => {
         res.status(200).json({
             status: 'success',
             message: 'Password reset email sent',
-reset_url:reseURL,
+            reset_url:resetURL,
         });
     } catch (error) {
         // If the email sending process fails, clear the password reset token and expiration date from the user and return a 500 error
@@ -313,11 +313,11 @@ exports.resetPassword = async (req, res) => {
     // If the user does not exist, return a 400 error with a message
     if (!user) {
         // If user is not found, return a 400 error with a message
-        return res.status(400).json({ message: 'Token is invalid or has expired' });
+        return res.status(400).json({status:'fail', message: 'Token is invalid or has expired' });
     }
-if(user.passwordResetExpires > Date.now()){
-return res.status(400).json({status:'fail', message: 'Your token has expired' });
-}
+    // if(user.passwordResetExpires > Date.now()){
+    // return res.status(400).json({status:'fail', message: 'Your token has expired' });
+    // }
     
     try {
         // Set the new password and clear the reset token and expiration date 
