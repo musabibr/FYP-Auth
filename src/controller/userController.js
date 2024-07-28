@@ -264,12 +264,13 @@ exports.forgotPassword = async (req, res) => {
     try {
         // Create the reset URL and send a password reset email to the user
         const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/reset-password/${user.resetToken}`;
-        await new Email(user, resetURL).sendPasswordReset();
+        //await new Email(user, resetURL).sendPasswordReset();
 
         // Return a 200 response with a success message
         res.status(200).json({
             status: 'success',
             message: 'Password reset email sent',
+reset_url:reseURL,
         });
     } catch (error) {
         // If the email sending process fails, clear the password reset token and expiration date from the user and return a 500 error
