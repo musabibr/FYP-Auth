@@ -47,7 +47,7 @@ app.use("/api/v1/users/", router);
 
 app.all('*',(req, res, next) => {
   res
-    .status(404)
+    .status(404 || 401)
     .json({
       status: "fail",
       method:`${req.method}`,
