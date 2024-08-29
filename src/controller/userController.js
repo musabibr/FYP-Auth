@@ -11,8 +11,8 @@ const {cloudinary ,deleteOldImg} = require('../utils/cloudinary');
 // 
 exports.uploadUserPhoto = upload.single('image');
 
-function validateUser(res,name, email, password) {
-    if(!name || !email || !password){
+function validateUser(res,name, email, password,gender) {
+    if(!name || !email || !password ||!gender){
         return res.status(400).json({message:"Missing required fields"});
     }
     if(name.length < 3 || name.length > 30){    
@@ -24,18 +24,25 @@ function validateUser(res,name, email, password) {
     if(!validator.isEmail(email)){
         return res.status(400).json({message:"Invalid email format"});
     }
+    if(gender !== 'male' && gender !== 'female'){
+        return res.status(400).json({message:"Invalid gender!"});
+    } else {
+        return true;
+    }
 }
 
 
 exports.signup = async (req, res, next)=>{
-    let { name, email, password } = req.body;
+    let { name, email, password ,gender} = req.body;
     
     try {
         const otpCode = generateOTP();
         // Encrypt OTP
         const code = await hashData.encryptData(otpCode);
-
-        validateUser(res, name, email, password);
+        if(validateUser(res, name, email, password,gender) !== true){
+            return;
+        }
+        // validateUser(res, name, email, password,gender);
 
         let user = await new userRepository().getUser(email);
 
@@ -44,7 +51,7 @@ exports.signup = async (req, res, next)=>{
         }
 
         password = await hashData.encryptData(password);
-        user = await new userRepository().createUser(name, email, password);
+        user = await new userRepository().createUser(name, email, password,gender);
         
         if (!user) {
             
@@ -62,6 +69,8 @@ exports.signup = async (req, res, next)=>{
                 name: user.name,
                 email: user.email,
                 photo: user.photo,
+                gender: user.gender,
+                role: user.role,
                 
             },
             OTP:{
@@ -159,6 +168,8 @@ exports.login = async (req, res,next) => {
                     name: user.name,
                     email: user.email,
                     photo: user.photo,
+                    gender: user.gender,
+                    role:user.role,
                     otp: {
                         attempts: {
                             sent: user.otp.attempts - 1,
@@ -419,7 +430,9 @@ exports.profile = async (req, res) => {
             id: user._id,
             name: user.name,
             email: user.email,
-            photo: user?.photo
+            photo: user?.photo,
+            gender: user.gender,
+            role:user.role
         }
 
         // Return a success response with the new user information
@@ -471,7 +484,9 @@ exports.updateMe = async (req,res)=>{
             id: user._id,
             name: user.name,
             email: user.email,
-            photo: user?.photo
+            photo: user?.photo,
+            gender: user.gender,
+            role:user.role,
         }
         // Return a success response with the new user information
         res.status(200).json({

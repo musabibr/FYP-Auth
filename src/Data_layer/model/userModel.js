@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const crypto = require("crypto");
 const { string } = require('joi');
+const { type } = require('os');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -22,6 +23,11 @@ const userSchema = new Schema({
         type: String,
         required: true,
         minlength: 8
+    },
+    gender: {
+        type: String,
+        enum: ['male', 'female'],
+        // default: 'male'
     },
     isVerified: {
         type: Boolean,

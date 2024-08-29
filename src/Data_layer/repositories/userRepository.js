@@ -1,10 +1,8 @@
 const User = require("../model/userModel");
 const crypto = require("crypto");
-const validator = require("validator");
 
 class UserRepository {
     async getUser(email) {
-        this.validateEmail(email);
         let user = await User.findOne({email});
         // return  users.find((user) => user.email === email);
         return user;
@@ -22,9 +20,8 @@ class UserRepository {
         return user;
     }
 
-    async createUser(name, email, password) {
-        this.validateUser(name, email, password);
-        return await User.create({ name, email, password });
+    async createUser(name, email, password,gender) {
+        return await User.create({ name, email, password,gender });
     }
 
     async updateUser(id, name) {
@@ -42,24 +39,6 @@ class UserRepository {
     }
 
 
-    validateEmail(email) {
-        if (!validator.isEmail(email)) {
-        throw new Error("Invalid email format");
-        }
-    }
-
-    validateUser(name, email, password) {
-        if (!name || !email || !password) {
-        throw new Error("Missing required fields");
-        }
-        this.validateEmail(email);
-        if (name.length < 3 || name.length > 30) {
-        throw new Error("Name must be between 3 and 30 characters");
-        }
-        if (password.length < 8) {
-        throw new Error("Password must be at least 8 characters");
-        }
-    }
     async updateOtp(id, otp) {
         const user = await this.getUserById(id);
         const attempts = user.otp?.attempts || 0;
