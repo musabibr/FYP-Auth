@@ -16,12 +16,6 @@ const UserRepository = require("../Data_layer/repositories/userRepository");
  */
 module.exports.requestOTP = async (req, res) => {
     let id, email;
-    
-    // Check if id is provided in the request parameters
-    // if (!req.params.id) {
-    //     return res.status(403).json({message: "Forbidden!!"});
-    // }
-    // const id = req.params.id; // Extract user ID from request parameters
 
     // Generate OTP
     const otpCode = generateOTP();
